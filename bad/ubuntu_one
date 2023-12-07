@@ -1,0 +1,161 @@
+#! /bin/bash
+DISTRO=$(lsb_release -i | cut -d: -f2 | sed "s/\\t//g")
+CODENAME=$(lsb_release -c | cut -d: -f2 | sed "s/\\t//g")
+
+unload_fs() {
+/bin/bash use/unload.sh cramfs fs
+/bin/bash use/unload.sh freevxfs fs
+/bin/bash use/unload.sh hfs fs
+/bin/bash use/unload.sh hfsplus fs
+/bin/bash use/unload.sh jffs2 fs
+/bin/bash use/unload.sh overlayfs fs
+/bin/bash use/unload.sh squashfs fs
+/bin/bash use/unload.sh udf fs
+/bin/bash use/unload.sh freevxfs fs
+
+/bin/bash use/unload.sh usb-storage drivers
+}
+
+
+if [[ $(df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null) -eq "" ]]
+then
+echo ""
+else
+df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null | xargs -I '{}' chmod a+t '{}'
+
+fi
+
+
+ubuntu_sources="
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME main restricted\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates main restricted\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME universe\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates universe\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME multiverse\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates multiverse\n
+deb http://us.archive.ubuntu.com/ubuntu/ CHANGEME-backports main restricted universe multiverse\n
+deb http://security.ubuntu.com/ubuntu CHANGEME-security main restricted\n
+deb http://security.ubuntu.com/ubuntu CHANGEME-security universe\n
+deb http://security.ubuntu.com/ubuntu CHANGEME-security multiverse\n
+
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME main restricted\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates main restricted\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME universe\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates universe\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME multiverse\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME-updates multiverse\n
+deb-src http://us.archive.ubuntu.com/ubuntu/ CHANGEME-backports main restricted universe multiverse\n
+deb-src http://security.ubuntu.com/ubuntu CHANGEME-security main restricted\n
+deb-src http://security.ubuntu.com/ubuntu CHANGEME-security universe\n
+deb-src http://security.ubuntu.com/ubuntu CHANGEME-security multiverse\n
+"
+
+sudo cp -r /etc/apt/sources.list* aptbackup.list.ab 
+sudo rm -f /etc/apt/sources.list 
+    case $DISTRO in 
+        Debian)
+            echo -e $debian_sources | sed "s/ deb/deb/g; s/CHANGEME/${CODENAME}/g" | sudo tee /etc/apt/sources.list > /dev/null
+            ;;
+        Ubuntu)
+            echo -e $ubuntu_sources | sed "s/ deb/deb/g; s/CHANGEME/${CODENAME}/g" | sudo tee /etc/apt/sources.list > /dev/null
+            ;;
+        *)  
+            sudo cp backup/apt/sources.list /etc/apt/sources.list
+            echo "Distro BAD"
+            exit 1
+            ;;
+
+    esac
+
+apt install -y unattended-upgrades apt-listchanges
+    
+    # Set automatic updates
+echo 'APT::Periodic::Update-Package-Lists "1";'             | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
+echo 'APT::Periodic::Download-Upgradeable-Packages "1";'    | sudo tee -a /etc/apt/apt.conf.d/10periodic > /dev/null
+echo 'APT::Periodic::Unattended-Upgrade "1";'               | sudo tee -a /etc/apt/apt.conf.d/10periodic > /dev/null
+echo 'APT::Periodic::AutocleanInterval "7";'                | sudo tee -a /etc/apt/apt.conf.d/10periodic > /dev/null
+
+    echo 'APT::Periodic::Update-Package-Lists "1";'             | sudo tee /etc/apt/apt.conf.d/20auto-upgrades > /dev/null
+    echo 'APT::Periodic::Download-Upgradeable-Packages "1";'    | sudo tee -a /etc/apt/apt.conf.d/20auto-upgrades > /dev/null
+    echo 'APT::Periodic::Unattended-Upgrade "1";'               | sudo tee -a /etc/apt/apt.conf.d/20auto-upgrades > /dev/null
+    echo 'APT::Periodic::AutocleanInterval "7";'                | sudo tee -a /etc/apt/apt.conf.d/20auto-upgrades > /dev/null
+
+apt update -y
+apt upgrade -y
+
+passwd root -l
+
+rm /etc/sysctl.d/cyber.conf
+touch /etc/sysctl.d/cyber.conf
+	
+	# Add these configs
+	echo kernel.dmesg_restrict=1        	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.msgmnb=65536            	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.msgmax=65536            	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.sysrq=0                 	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.maps_protect=1          	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.core_uses_pid=1         	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.shmmax=68719476736      	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.shmall=4294967296       	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.exec_shield=1           	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.panic=10                	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.kptr_restrict=2         	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.randomize_va_space=2    	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.unprivileged_userns_clone=0 |  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.ctrl-alt-del=0          	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.yama.ptrace_scope=2	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.panic_on_oops=60		|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.perf_event_paranoid=3	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.unprivileged_bpf_disabled=1 |  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo kernel.modules_disabled=0	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	
+	
+	prelink
+	echo vm.panic_on_oom=1              	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo fs.protected_hardlinks=1       	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo fs.protected_symlinks=1        	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo fs.suid_dumpable=0             	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	
+	echo dev.tty.ldisc_autoload=0		|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	echo fs.protected_fifos=2            	|  tee -a /etc/sysctl.d/cyber.conf > /dev/null
+	
+	
+	sysctl --system
+prelink -ua
+apt purge prelink
+if [[ $(grep -ic "* hard maxlogin 10" /etc/security/limits.conf) -eq 0 ]] 
+then
+	echo "* hard maxlogin 10" >> /etc/security/limits.conf
+fi
+apt purge apport -y
+
+systemctl disable kdump.service
+
+systemctl mask ctrl-alt-del.target
+systemctl daemon-reload
+
+apt install apparmor apparmor-utils -y
+sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="apparmor=1 security=apparmor"/' /etc/default/grub
+
+cat /etc/default/grub | grep 'GRUB_CMDLINE_LINUX="apparmor=1 security=apparmor"'
+if [ $? == 0 ]; then {
+	echo grub config updated
+	update-grub
+}
+systemctl start apparmor.service
+
+aa-complain /etc/apparmor.d/*
+aa-enforce /etc/apparmor.d/*
+
+rm /etc/motd
+echo "Authorized use only. All activity may be monitored and reported." > /etc/issue.net
+
+chown root:root $(readlink -e /etc/issue)
+chmod u-x,go-wx $(readlink -e /etc/issue)
+chown root:root $(readlink -e /etc/issue.net)
+chmod u-x,go-wx $(readlink -e /etc/issue.net)
+
+gsettings set org.gnome.desktop.screensaver lock-enabled true
+
+
+
