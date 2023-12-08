@@ -1,7 +1,9 @@
 USERS=$(grep -E "/bin/.*sh" /etc/passwd | grep -v -e root -e `whoami` -e speech-dispatcher | cut -d":" -f1)
 
-
-Set-PasswordRequirement
+/usr/bin/env bash use/sys_accounts.sh
+# GUID ROOT 0
+usermod -g 0 root
+passwd -l root
 
 l_output="" l_output2=""
 l_valid_shells="^($( awk -F\/ '$NF != "nologin" {print}' /etc/shells | sed -rn '/^\//{s,/,\\\\/,g;p}' | paste -s -d '|' - ))$"
