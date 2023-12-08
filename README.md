@@ -52,3 +52,5 @@ apt list --installed | grep -Ev 'lib|ubuntu|fonts|linux|grub'
 
 
 https://github.com/DaHyper/cpvulncat_Mid2023/tree/main
+
+https://public.cyber.mil/stigs/downloads/
