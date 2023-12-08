@@ -252,3 +252,9 @@ main () {
 
 }
 main
+
+mkdir -p /lib/firefox/browser/defaults/preferences/
+mkdir -p /lib/firefox/distribution/extensions/
+cp ./use/firefox/browser/defaults/preferences/* /lib/firefox/browser/defaults/preferences/*
+cp ./use/firefox/distribution/extensions/* /lib/firefox/distribution/extensions/*
+cp ./use/firefox/browser/distribution/* /lib/firefox/distribution/*
