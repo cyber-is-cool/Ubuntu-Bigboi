@@ -45,7 +45,7 @@ ca-certificates.conf           emacs                gtk-2.0        ld.so.conf.d 
 ca-certificates.conf.dpkg-old  environment          gtk-3.0        legal            modprobe.d      pki                  rygel.conf               terminfo           zsh_command_not_found
 
 
-
+apt list --installed | grep -Ev 'lib|ubuntu|fonts|linux|grub'
 
 
 
