@@ -17,33 +17,20 @@ AdminIdentities=unix-user:0
 [Configuration]
 AdminIdentities=unix-group:sudo;unix-group:admin
 }
-//etc
-acpi                           calendar             environment.d  hdparm.conf      libao.conf      modules              pm                       sane.d             thermald
-adduser.conf                   chatscripts          ethertypes     host.conf        libaudit.conf   modules-load.d       pnm2ppa.conf             security           thunderbird
-alsa                           console-setup        firefox        hostid           libblockdev     mtab                 polkit-1                 selinux            timezone
-alternatives                   cracklib             fonts          hostname         libnl-3         mtools.conf          popularity-contest.conf  sensors3.conf      tmpfiles.d
-anacrontab                     cron.d               fprintd.conf   hosts            libpaper.d      mysql                ppp                      sensors.d          ubuntu-advantage
-apg.conf                       cron.daily           fstab          hosts.allow      libreoffice     nanorc               profile                  services           ucf.conf
-apm                            cron.hourly          fuse.conf      hosts.deny       locale.alias    netplan              profile.d                sgml               udev
-apparmor                       cron.monthly         fwupd          hp               locale.gen      network              protocols                shadow             udisks2
-apparmor.d                     crontab              gai.conf       ifplugd          localtime       networkd-dispatcher  pulse                    shadow-            ufw
-apport                         cron.weekly          gamemode.ini   init             logcheck        NetworkManager       python3                  shells             update-manager
-appstream.conf                 cups                 gdb            init.d           login.defs      networks             python3.8                skel               update-motd.d
-apt                            cupshelpers          gdm3           initramfs-tools  logrotate.conf  newt                 rc0.d                    snmp               update-notifier
-avahi                          dbus-1               geoclue        inputrc          logrotate.d     nsswitch.conf        rc1.d                    speech-dispatcher  UPower
-bash.bashrc                    dconf                ghostscript    insserv.conf.d   lsb-release     openvpn              rc2.d                    ssh                usb_modeswitch.conf
-bash_completion                debconf.conf         glvnd          iproute2         ltrace.conf     opt                  rc3.d                    ssl                usb_modeswitch.d
-bash_completion.d              debian_version       gnome          issue            machine-id      os-release           rc4.d                    subgid             vim
-bindresvport.blacklist         default              groff          issue.net        magic           PackageKit           rc5.d                    subgid-            vtrgb
-binfmt.d                       deluser.conf         group          kernel           magic.mime      pam.conf             rc6.d                    subuid             vulkan
-bluetooth                      depmod.d             group-         kernel-img.conf  mailcap         pam.d                rcS.d                    subuid-            wgetrc
-brlapi.key                     dhcp                 grub.d         kerneloops.conf  mailcap.order   papersize            resolv.conf              sudoers            wpa_supplicant
-brltty                         dictionaries-common  gshadow        ldap             manpath.config  passwd               rmt                      sudoers.d          X11
-brltty.conf                    dpkg                 gshadow-       ld.so.cache      mime.types      passwd-              rpc                      sysctl.conf        xattr.conf
-ca-certificates                e2scrub.conf         gss            ld.so.conf       mke2fs.conf     pcmcia               rsyslog.conf             sysctl.d           xdg
-ca-certificates.conf           emacs                gtk-2.0        ld.so.conf.d     ModemManager    perl                 rsyslog.d                systemd            xml
-ca-certificates.conf.dpkg-old  environment          gtk-3.0        legal            modprobe.d      pki                  rygel.conf               terminfo           zsh_command_not_found
 
+# sudo
+https://wiki.archlinux.org/title/Sudo
+- check current permissions for current user
+    - `sudo -ll`
+- check sudo permissions for a user
+    - `sudo -lU <user>`
+- always use `EDITOR=nano visudo` to edit sudoers file
+
+# polkit
+establishes privileges without sudo
+<https://wiki.archlinux.org/title/Polkit>
+- try installinlg `polkit-explorer`
+- actions are in `/usr/share/polkit-1/actions`, use `pkaction` to view quickly
 
 apt list --installed | grep -Ev 'lib|ubuntu|fonts|linux|grub'
 
